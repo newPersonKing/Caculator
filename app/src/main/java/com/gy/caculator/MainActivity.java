@@ -2,6 +2,7 @@ package com.gy.caculator;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -158,9 +159,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String getResult() {
         String str=etResult.getText().toString();
         // 2.0 支持 小数点 支持连续运算
-        String  result= solution.calculateA(str);
+        String  result= solution.calculatePoint(str);
         etResult.setText(result);
         isGetResult = true;
+
+        SolutionOneImpl solutionOneImpl = new SolutionOneImpl();
+        double  ccc =  solutionOneImpl.calculate("1+2+(2.1*3)+1.5+2.11+(2*3)/2");
         return result;
     }
 

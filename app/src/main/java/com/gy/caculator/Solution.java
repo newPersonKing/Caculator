@@ -7,6 +7,7 @@ class Solution {
 
 
     // 100 + 5*3
+    // 这个只支持整数
     public int calculate(String s) {
         int res = 0, d = 0;
         char sign = '+';
@@ -38,7 +39,8 @@ class Solution {
     }
 
 
-    public String calculateA(String s) {
+    // 可以解析 小数点
+    public String calculatePoint(String s) {
         double res = 0;
         String d = "";
         char sign = '+';
@@ -76,6 +78,41 @@ class Solution {
         }
 
         return df.format(res);
+    }
+
+    // 可以解析 小数点
+    public Double calculatePointDouble(String s) {
+        double res = 0;
+        String d = "";
+        char sign = '+';
+        Stack<Double> nums = new Stack<Double> ();
+        for (int i = 0; i < s.length(); i++) {
+            //加减乘除和空格的ASCII码都小于'0'
+            // 累计 算数字
+            if (s.charAt(i) >= '0' || s.charAt(i) == '.'){
+                // 直接拼接字符串
+                d = d + s.substring(i,i+1);
+            }
+            // 遇到运算符
+            if(((s.charAt(i) < '0' && s.charAt(i)!=' ') || i == s.length() - 1)&& s.charAt(i) != '.'){
+                if (sign == '+') {
+                    nums.push(Double.parseDouble(d));
+                } else if (sign == '-') {
+                    nums.push(-Double.parseDouble(d));
+                } else if (sign == '*' || sign == '/'){
+                    double temp = sign == '*' ? nums.pop() * Double.parseDouble(d) : nums.pop() / Double.parseDouble(d);
+                    nums.push(temp);
+                }
+                sign = s.charAt(i);
+                d = "";
+            }
+        }
+        for(Double t : nums){
+            res += t;
+        }
+
+
+        return res;
     }
 
 }

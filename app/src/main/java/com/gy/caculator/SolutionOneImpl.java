@@ -3,11 +3,11 @@ package com.gy.caculator;
 import java.util.Stack;
 
 //这个只处理了  + - （）
-class SolutionOne {
+class SolutionOneImpl {
 
     private Solution solution = new Solution();
 
-    public int evaluateExpr(Stack<Object> stack) {
+    public double evaluateExpr(Stack<Object> stack) {
 
 
         // 一直循环 直到找到 第一个对应的 )
@@ -20,12 +20,12 @@ class SolutionOne {
 
             needResolveStr += String.valueOf(sign);
         }
-        return solution.calculate(needResolveStr);
+        return solution.calculatePointDouble(needResolveStr);
     }
 
-    public int calculate(String s) {
+    public double calculate(String s) {
 
-        int operand = 0;
+        String operand = "";
         int n = 0;
         Stack<Object> stack = new Stack<Object>();
 
@@ -34,13 +34,14 @@ class SolutionOne {
             char ch = s.charAt(i);
 
             // 如果是数字
-            if (Character.isDigit(ch)) {
+            if (Character.isDigit(ch)||String.valueOf(ch).equals(".")) {
 
                 // Forming the operand - in reverse order.
                 // ch - '0'代表 字符ch 的ASCIII值 减去 '0'的ASCII值 算出的就是 数字字符ch 对应的真正的数字值
                 // 比如是123
                 // 第一次算出的是 3 第二次 是 20 +3 第三次 是 100 + 20 + 3
-                operand = (int) Math.pow(10, n) * (int) (ch - '0') + operand;
+//                operand = (int) Math.pow(10, n) * (int) (ch - '0') + operand;
+                operand = ch +operand;
                 n += 1;
 
             } else if (ch != ' ') {
@@ -48,13 +49,13 @@ class SolutionOne {
                     // 遇到运算符 把之前的计算的num 推入 stack
                     stack.push(operand);
                     n = 0;
-                    operand = 0;
+                    operand = "";
 
                 }
                 // 如果是 （ 代表 有一对括号需要执行
                 if (ch == '(') {
 
-                    int res = evaluateExpr(stack);
+                    double res = evaluateExpr(stack);
                     stack.pop();
 
                     // Append the evaluated result to the stack.
