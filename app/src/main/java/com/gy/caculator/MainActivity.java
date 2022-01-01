@@ -30,10 +30,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btn_clear;  //清空
     private Button btn_del;  //取消
 
-    private EditText et_showview;  //输入框
-    private double dou = 0;  //接收结果
+    private EditText etResult;  //输入框
 
-    private boolean flag;//标志服，判断是否清空编辑框
+    private Solution solution = new Solution();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +42,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
     }
     private void initView(){
-        flag=true;
-
 
         btn_0 = (Button) findViewById(R.id.btn_0);
         btn_1 = (Button) findViewById(R.id.btn_1);
@@ -65,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btn_clear = (Button) findViewById(R.id.btn_clear);
         btn_del = (Button) findViewById(R.id.btn_del);
-        et_showview = (EditText) findViewById(R.id.et_showview);
+        etResult = (EditText) findViewById(R.id.et_result);
 
         btn_0.setOnClickListener(this);
         btn_1.setOnClickListener(this);
@@ -90,7 +87,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        String str = et_showview.getText().toString();
+        String str = etResult.getText().toString();
+        String showStr = "";
         switch (v.getId()) {
             case R.id.btn_0:
             case R.id.btn_1:
@@ -102,122 +100,78 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_7:
             case R.id.btn_8:
             case R.id.btn_9:
-                if (str.charAt(0) == ' ') {
-                    et_showview.setText(((Button) v).getText());
-                }
-                if (str.charAt(0) == '0' && !str.contains(" ") && !str.contains(".")) {
-                    et_showview.setText(((Button) v).getText());
-                } else {
-                    et_showview.setText(str + ((Button) v).getText());
+                if(isGetResult){
+                    showStr = ((Button) v).getText().toString();
+                    isGetResult = false;
+                }else {
+                    if(str.equals("0")){
+                        str = "";
+                    }
+                    showStr = str + ((Button) v).getText();
                 }
 
                 break;
             case R.id.btn_point:
-                if (str == "0") {
-                    et_showview.setText("0" + ".");
-                } else if (str.contains(".") || str.charAt(str.length() - 1) == ' ') {
-                    et_showview.setText(str);
-                } else {
-                    et_showview.setText(str + ".");
+                if(str.isEmpty()){
+                    showStr = "0.";
+                }else if(str.endsWith(".") || !isEndWidthNum(str)){
+                    return;
+                }else {
+                    showStr = str +".";
                 }
                 break;
             case R.id.btn_pluse:
             case R.id.btn_minus:
             case R.id.btn_multiply:
             case R.id.btn_divide:
-                if (str.charAt((str.length() - 1)) == ' ') {
-                    et_showview.setText(str.substring(0, str.length() - 3) + " " + ((Button) v).getText() + " ");
-                } else {
-                    et_showview.setText(str + " " + ((Button) v).getText() + " ");
+                isGetResult = false;
+                if(!isEndWidthNum(str)){
+                    return;
+                }else {
+                    showStr = str + ((Button) v).getText().toString();
                 }
+
                 break;
             case R.id.btn_del:
+                isGetResult = false;
                 if (str.length() == 1) {
-                    et_showview.setText("0");
+                    showStr = "0";
                 } else {
-                    et_showview.setText(str.substring(0, str.length() - 1));
+                    showStr = str.substring(0, str.length() - 1);
                 }
                 break;
             case R.id.btn_clear:
-                et_showview.setText("0");
+                isGetResult = false;
+                showStr = "0";
                 break;
             case R.id.btn_equal:
-                getResult();
-
+                showStr = getResult();
                 break;
             default:
                 break;
         }
+        etResult.setText(showStr);
     }
 
-    private void getResult() {
-        flag=false;
-        String result=et_showview.getText().toString();
-        if(!result.contains(" "))
-        {
-            if(result.equals("520"))
-            {
-                et_showview.setText("光光我爱你");
-            }else if(result.equals("250"))
-            {
-                et_showview.setText("光光你是个250");
-            }else {
-                return;
-            }
+    // 代表点击按钮 前是否 计算过 如果计算过 点击数字重新开始算 点击运算符 继续计算
+    private boolean isGetResult = false;
+    String getResult() {
+        String str=etResult.getText().toString();
+        // 2.0 支持 小数点 支持连续运算
+        String  result= solution.calculateA(str);
+        etResult.setText(result);
+        isGetResult = true;
+        return result;
+    }
+
+    boolean isEndWidthNum(String str){
+        if(str.isEmpty())return false;
+        String lastElement  = str.substring(str.length()-1,str.length());
+        try {
+            Integer.parseInt(lastElement);
+        }catch (Exception e){
+            return false;
         }
-        else {
-            String str1 = result.substring(0, result.indexOf(" "));
-            String op = result.substring(result.indexOf(" ") + 1, result.indexOf(" ") + 2);
-            String str2 = result.substring(result.indexOf(" ") + 3);
-            if (!str2.equals("")) {
-                Double d1 = Double.parseDouble(str1);
-                Double d2 = Double.parseDouble(str2);
-                if (op.equals("+")) {
-                    dou = d1 + d2;
-
-                } else if (op.equals("-")) {
-                    dou = d1 - d2;
-                } else if (op.equals("*")) {
-                    dou = d1 * d2;
-                } else if (op.equals("/")) {
-                    if (d1 == 0 && d2 != 0) {
-                        dou = 0;
-                    } else if (d2 == 0) {
-                        dou = 0;
-                        Toast.makeText(MainActivity.this, "There is a error", Toast.LENGTH_SHORT).show();
-                    } else {
-                        dou = d1 / d2;
-                    }
-                }
-
-                double media = dou - (int) dou;
-                if (media > 0) {
-                    String last = String.valueOf(dou);
-                    et_showview.setText(last);
-                } else {
-                    if(dou==520)
-                    {
-                        et_showview.setText("光光我爱你");
-                    }else if(dou==250)
-                    {
-                        et_showview.setText("光光你是个250");
-                    }else {
-                        if(dou>999999999999999d){
-                            et_showview.setText("999999999999999d");
-                            Toast.makeText(MainActivity.this,"Over the field",Toast.LENGTH_SHORT).show();
-                        }else {
-                            int inter = (int) dou;
-                            String last = String.valueOf(inter);
-                            et_showview.setText(last);
-                        }
-                    }
-                }
-
-            } else {
-                et_showview.setText(result);
-                Toast.makeText(MainActivity.this, "There isn't finished", Toast.LENGTH_SHORT).show();
-            }
-        }
-
+        return true;
     }
 }
